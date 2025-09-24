@@ -1,82 +1,58 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>C-Leg Charger Slide — OPC Mini-Game (Safe Mode)</title>
-<style>
-  html,body{height:100%;margin:0;background:#0f172a;color:#e2e8f0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
-  .wrap{display:grid;place-items:center;height:100%;gap:12px;padding:16px}
-  .panel{width:min(1100px,96vw);background:#111827;border:1px solid #1f2937;border-radius:16px;box-shadow:0 20px 40px rgba(0,0,0,.35);overflow:hidden}
-  .hud{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#0b1223;border-bottom:1px solid #1f2937}
-  .hud .left,.hud .right{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
-  .badge{background:#1f2937;padding:6px 10px;border-radius:999px;font-weight:600;letter-spacing:.2px}
-  .btn{background:#2563eb;border:none;color:#fff;padding:8px 12px;border-radius:10px;font-weight:700;cursor:pointer}
-  .btn:active{transform:translateY(1px)}
-  canvas{display:block;width:100%;height:auto;background:linear-gradient(#0f172a 30%, #0b1223 30%)}
-  .footer{padding:10px 14px;border-top:1px solid #1f2937;font-size:14px;color:#94a3b8;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
-  .meterWrap{width:180px;height:12px;background:#111827;border:1px solid #374151;border-radius:999px;overflow:hidden}
-  .meter{height:100%;background:linear-gradient(90deg,#22c55e,#eab308,#ef4444);width:0%}
-  .toast{position:absolute;pointer-events:none;left:50%;top:18%;transform:translateX(-50%);font-size:22px;font-weight:800;text-shadow:0 2px 6px rgba(0,0,0,.4);opacity:0}
-  .overlay{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(3,6,23,.5)}
-  .card{background:#0b1223;border:1px solid #1f2937;border-radius:14px;padding:16px;width:min(560px,92vw);color:#e2e8f0}
-  .muted{color:#94a3b8;font-size:13px}
-  /* error banner */
-  #err{position:fixed;left:12px;bottom:12px;right:12px;background:#7f1d1d;color:#fecaca;border:1px solid #ef4444;border-radius:10px;padding:8px 10px;display:none;font:12px/1.4 monospace;white-space:pre-wrap;z-index:9999}
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>C-Leg Charger Slide — OPC Mini-Game</title>
+  <style>
+    html, body { height: 100%; margin: 0; background: #0f172a; color: #e2e8f0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; }
+    .wrap { display: grid; place-items: center; height: 100%; gap: 12px; padding: 16px; }
+    .panel { width: min(1100px, 96vw); background: #111827; border: 1px solid #1f2937; border-radius: 16px; box-shadow: 0 20px 40px rgba(0,0,0,.35); overflow: hidden; }
+    .hud { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: #0b1223; border-bottom: 1px solid #1f2937; }
+    .hud .left, .hud .right { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+    .badge { background: #1f2937; padding: 6px 10px; border-radius: 999px; font-weight: 600; letter-spacing: .2px; }
+    .btn { background: #2563eb; border: none; color: white; padding: 8px 12px; border-radius: 10px; font-weight: 700; cursor: pointer; }
+    .btn:active { transform: translateY(1px); }
+    canvas { display: block; width: 100%; height: auto; background: linear-gradient(#0f172a 30%, #0b1223 30%); }
+    .footer { padding: 10px 14px; border-top: 1px solid #1f2937; font-size: 14px; color: #94a3b8; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+    .meterWrap { width: 200px; height: 12px; background: #111827; border: 1px solid #374151; border-radius: 999px; overflow: hidden; }
+    .meter { height: 100%; background: linear-gradient(90deg, #22c55e, #eab308, #ef4444); width: 0%; transition: width .06s linear; }
+    .toast { position: absolute; pointer-events: none; left: 50%; top: 18%; transform: translateX(-50%); font-size: 22px; font-weight: 800; text-shadow: 0 2px 6px rgba(0,0,0,.4); opacity: 0; }
+  </style>
 </head>
 <body>
 <div class="wrap">
-  <div class="panel">
+  <div class="panel" id="gamePanel">
     <div class="hud">
       <div class="left">
         <span class="badge">C-Leg Charger Slide</span>
         <span class="badge">Target: $13,900</span>
         <span class="badge" id="scoreBadge">Score: 0</span>
         <span class="badge" id="roundBadge">Round: 1</span>
-        <div class="meterWrap" title="Hold space/press to charge, release to slide">
+        <div class="meterWrap" title="Hold space / mouse / touch to charge, release to slide">
           <div class="meter" id="powerMeter"></div>
         </div>
       </div>
       <div class="right">
-        <button class="btn" id="restartBtn">Restart</button>
+        <button class="btn" id="restartBtn" title="Restart">Restart</button>
       </div>
     </div>
 
-    <div style="position:relative">
+    <div style="position: relative;">
       <canvas id="game" width="1100" height="520" aria-label="C-Leg Charger Slide game"></canvas>
       <div class="toast" id="toast">+0</div>
-      <!-- simple win overlay -->
-      <div class="overlay" id="winOverlay">
-        <div class="card">
-          <h2 style="margin:0 0 8px 0;">You matched the OPC C-Leg price: $13,900</h2>
-          <div class="muted">Press Restart to play again.</div>
-        </div>
-      </div>
     </div>
 
     <div class="footer">
-      <div>Controls: Hold <strong>Space</strong> or press/hold on mobile to charge. Release to slide.</div>
-      <div>Tip: stop just beside your teammate on the bar for max points.</div>
+      <div>Controls: hold <strong>Space</strong>, or press and hold the <strong>mouse button</strong> (or touch), then release to slide.</div>
+      <div>Tip: a soft stop just beside the clinician pays best.</div>
     </div>
   </div>
-  <small class="muted">Safe-mode build (no audio init, hardened helpers, on-page error banner).</small>
+  <small style="opacity:.7">Scoring tuned: typical finish ~12–15 rounds; skilled ~9–11.</small>
 </div>
-
-<div id="err"></div>
 
 <script>
 (function(){
-  // On-page error capture so we SEE problems instead of a blank canvas.
-  const errBox = document.getElementById('err');
-  function showErr(msg){
-    errBox.style.display = 'block';
-    errBox.textContent = String(msg);
-    console.error(msg);
-  }
-  window.addEventListener('error', e => showErr(e.message + (e.lineno ? ' @'+e.filename+':'+e.lineno : '')));
-  window.addEventListener('unhandledrejection', e => showErr('Promise rejection: ' + (e.reason && e.reason.message || e.reason)));
-
   const canvas = document.getElementById('game');
   const ctx = canvas.getContext('2d');
   const scoreEl = document.getElementById('scoreBadge');
@@ -84,74 +60,102 @@
   const meter = document.getElementById('powerMeter');
   const restartBtn = document.getElementById('restartBtn');
   const toast = document.getElementById('toast');
-  const winOverlay = document.getElementById('winOverlay');
 
-  const WIDTH = canvas.width, HEIGHT = canvas.height;
-  const barY = HEIGHT * 0.65, barLeft = 70, barRight = WIDTH - 60;
+  const WIDTH = canvas.width;
+  const HEIGHT = canvas.height;
 
+  // World layout
+  const barY = HEIGHT * 0.65;
+  const barLeft = 70;
+  const barRight = WIDTH - 60;
+
+  // Roster (uppercase, per your list)
   const teammates = [
-    'ADESUA','ANNE','BAILY','BRAD','BRANDON','BRIAN','CASEY','CHRIS','CYRUS','ELISA','FRANK','GREG',
-    'HENRY','JACOB','JASON','JILLIAN','KASEY','KEVIN','KYLE','LAUREL','MICHAEL','MITCHELL','PAUL','ROBYN',
-    'RUXANDRA','SANTRELL','SHANE','STEPHANIE','STEVEN','TARA','TYLER','WESLEY','ZACHARY'
+    {name:'ADESUA'},{name:'ANNE'},{name:'BAILY'},{name:'BRAD'},{name:'BRANDON'},{name:'BRIAN'},
+    {name:'CASEY'},{name:'CHRIS'},{name:'CYRUS'},{name:'ELISA'},{name:'FRANK'},{name:'GREG'},
+    {name:'HENRY'},{name:'JACOB'},{name:'JASON'},{name:'JILLIAN'},{name:'KASEY'},{name:'KEVIN'},
+    {name:'KYLE'},{name:'LAUREL'},{name:'MICHAEL'},{name:'MITCHELL'},{name:'PAUL'},{name:'ROBYN'},
+    {name:'RUXANDRA'},{name:'SANTRELL'},{name:'SHANE'},{name:'STEPHANIE'},{name:'STEVEN'},
+    {name:'TARA'},{name:'TYLER'},{name:'WESLEY'},{name:'ZACHARY'}
   ];
 
-  let score = 0, round = 1, gameOver = false;
-  let target = { x: 750, name: 'KASEY' };
-  let charger = { x: barLeft+25, y: barY-14, vx: 0, moving: false };
-  let charging = false, charge = 0, increasing = true;
+  // Game state
+  let score = 0;
+  let round = 1;
+  let target = {x: 750, name: 'KASEY'};
+  let charger = {x: barLeft+25, y: barY-14, vx: 0, moving: false};
+  let charging = false;
+  let charge = 0; // 0..1 oscillation
+  let increasing = true;
   let confetti = [];
-  let lastStop = null;
 
-  function rng(min,max){ return min + Math.random()*(max-min); }
+  function resetRound(){
+    round++;
+    roundEl.textContent = 'Round: ' + round;
+    charger.x = barLeft+25;
+    charger.y = barY-14;
+    charger.vx = 0;
+    charger.moving = false;
+    const minX = WIDTH*0.45, maxX = barRight-30;
+    target.x = Math.floor(minX + Math.random()*(maxX-minX));
+    target.name = teammates[Math.floor(Math.random()*teammates.length)].name;
+  }
 
   function restart(){
-    score = 0; round = 1; gameOver = false; confetti.length = 0; lastStop = null;
-    scoreEl.textContent = 'Score: 0'; roundEl.textContent = 'Round: 1';
+    score = 0; round = 1; confetti.length = 0; hideToast();
+    scoreEl.textContent = 'Score: ' + score;
+    roundEl.textContent = 'Round: ' + round;
     charger.x = barLeft+25; charger.y = barY-14; charger.vx = 0; charger.moving = false;
     const minX = WIDTH*0.45, maxX = barRight-30;
-    target.x = Math.floor(rng(minX, maxX));
-    target.name = teammates[Math.floor(Math.random()*teammates.length)];
-    winOverlay.style.display = 'none';
+    target.x = Math.floor(minX + Math.random()*(maxX-minX));
+    target.name = teammates[Math.floor(Math.random()*teammates.length)].name;
   }
   restartBtn.addEventListener('click', restart);
 
-  function startCharge(){ if(gameOver) return; charging = true; }
+  // Input (keyboard, mouse, touch)
+  function startCharge(){ charging = true; }
   function endCharge(){
-    if(gameOver || !charging) return; charging = false;
-    const minV = 6, maxV = 36;
+    if(!charging) return;
+    charging = false;
+    const minV = 4, maxV = 24; // softer than original
     charger.vx = minV + charge*(maxV-minV);
     charger.moving = true;
   }
-
-  window.addEventListener('keydown', e=>{ if(e.code==='Space'){ e.preventDefault(); startCharge(); }});
-  window.addEventListener('keyup', e=>{ if(e.code==='Space'){ e.preventDefault(); endCharge(); }});
+  window.addEventListener('keydown', (e)=>{ if(e.code === 'Space'){ e.preventDefault(); startCharge(); }});
+  window.addEventListener('keyup',   (e)=>{ if(e.code === 'Space'){ e.preventDefault(); endCharge(); }});
   canvas.addEventListener('pointerdown', startCharge);
   window.addEventListener('pointerup', endCharge);
 
   function showToast(text, color){
-    toast.textContent = text; toast.style.color = color || '#22c55e'; toast.style.opacity = 1;
+    toast.textContent = text;
+    toast.style.color = color || '#22c55e';
+    toast.style.opacity = 1;
     toast.animate([
       { transform: 'translate(-50%, 0)', opacity: 0 },
       { transform: 'translate(-50%, -12px)', opacity: 1, offset: .2 },
       { transform: 'translate(-50%, -46px)', opacity: .95, offset: .6 },
       { transform: 'translate(-50%, -80px)', opacity: 0 }
-    ], { duration: 1200, easing: 'ease-out' });
-    setTimeout(()=>{ toast.style.opacity = 0; }, 1100);
+    ], { duration: 1100, easing: 'ease-out' });
+    setTimeout(()=>{ toast.style.opacity = 0; }, 1000);
   }
+  function hideToast(){ toast.style.opacity = 0; }
 
   function launchConfetti(){
     confetti.length = 0;
-    for(let i=0;i<160;i++){
-      confetti.push({ x: WIDTH/2, y: 40, vx: (Math.random()*2-1)*6, vy: (Math.random()*-1-2)*6,
+    for(let i=0;i<180;i++){
+      confetti.push({
+        x: WIDTH/2, y: 40, vx: (Math.random()*2-1)*6, vy: (Math.random()*-1-2)*6,
         g: 0.25+Math.random()*0.25, s: 2+Math.random()*3, r: Math.random()*Math.PI,
-        c: `hsl(${Math.floor(Math.random()*360)}, 90%, 60%)` });
+        c: `hsl(${Math.floor(Math.random()*360)}, 90%, 60%)`
+      });
     }
   }
   function drawConfetti(){
     confetti.forEach(p=>{
       p.vy += p.g; p.x += p.vx; p.y += p.vy; p.r += .1;
       ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.r);
-      ctx.fillStyle = p.c; ctx.fillRect(-p.s/2,-p.s/2,p.s,p.s*2); ctx.restore();
+      ctx.fillStyle = p.c; ctx.fillRect(-p.s/2,-p.s/2,p.s,p.s*2);
+      ctx.restore();
     });
   }
 
@@ -160,81 +164,107 @@
     const grad = ctx.createLinearGradient(0,0,0,wallBottom);
     grad.addColorStop(0,'#0b132b'); grad.addColorStop(1,'#0a1124');
     ctx.fillStyle = grad; ctx.fillRect(0,0,WIDTH,wallBottom);
-    // subtle OPC sign
-    ctx.save(); ctx.translate(WIDTH-210,60);
-    ctx.fillStyle='#0ea5e9'; ctx.globalAlpha=.08; ctx.fillRect(-80,-20,160,40);
-    ctx.globalAlpha=1; ctx.font='bold 22px system-ui'; ctx.fillStyle='#38bdf8'; ctx.fillText('OPC',-26,7);
+
+    // OPC sign
+    ctx.save();
+    ctx.translate(WIDTH-210, 60);
+    ctx.fillStyle = '#0ea5e9';
+    ctx.globalAlpha = .08; ctx.fillRect(-80,-20,160,40);
+    ctx.globalAlpha = 1;
+    ctx.font = 'bold 22px system-ui'; ctx.fillStyle = '#38bdf8'; ctx.fillText('OPC', -26, 7);
     ctx.restore();
-    // counter
+
+    // Counter
     const wood = ctx.createLinearGradient(0, wallBottom, 0, HEIGHT);
-    wood.addColorStop(0,'#4b2e13'); wood.addColorStop(1,'#7f5539');
-    ctx.fillStyle = wood; ctx.fillRect(0, wallBottom, WIDTH, HEIGHT-wallBottom);
-    ctx.fillStyle = '#e2c290'; ctx.fillRect(0, barY-2, WIDTH, 4);
+    wood.addColorStop(0, '#4b2e13'); wood.addColorStop(1, '#7f5539');
+    ctx.fillStyle = wood; ctx.fillRect(0, wallBottom, WIDTH, HEIGHT - wallBottom);
+
+    // Bar lip
+    ctx.fillStyle = '#e2c290';
+    ctx.fillRect(0, barY-2, WIDTH, 4);
   }
 
   function drawEric(){
     const x = barLeft-10, y = barY-36;
-    ctx.fillStyle = '#1f2937'; ctx.fillRect(x, y+28, 18, 20); ctx.fillRect(x+20, y+28, 18, 20);
-    ctx.fillStyle = '#2563eb'; ctx.fillRect(x-2, y, 42, 32);
+    ctx.save();
+    ctx.fillStyle = '#1f2937';
+    ctx.fillRect(x, y+28, 18, 20);
+    ctx.fillRect(x+20, y+28, 18, 20);
+    ctx.fillStyle = '#2563eb';
+    ctx.fillRect(x-2, y, 42, 32);
     ctx.beginPath(); ctx.arc(x+19, y-10, 10, 0, Math.PI*2); ctx.fillStyle = '#f1c27d'; ctx.fill();
     ctx.beginPath(); ctx.arc(x+19, y-13, 10, Math.PI, 0); ctx.fillStyle = '#2b2b2b'; ctx.fill();
     ctx.fillStyle = '#f1c27d'; ctx.fillRect(x+34, y+4, 16, 8);
-    ctx.fillStyle = '#fff'; ctx.font='bold 10px system-ui'; ctx.fillText('Eric', x+4, y+18);
+    ctx.fillStyle = 'white'; ctx.font = 'bold 10px system-ui'; ctx.fillText('Eric', x+4, y+18);
+    ctx.restore();
   }
 
   function drawTeammate(){
     const x = target.x, y = barY-20;
-    // hands
-    ctx.fillStyle = '#f5d0a5'; ctx.beginPath(); ctx.arc(x-18,y+8,6,0,Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc(x+18,y+8,6,0,Math.PI*2); ctx.fill();
-    // head
-    ctx.beginPath(); ctx.arc(x,y-10,16,0,Math.PI*2); ctx.fill();
-    // hair
-    const hue = (Array.from(target.name).reduce((a,c)=>a+c.charCodeAt(0),0)*7)%360;
-    ctx.fillStyle = `hsl(${hue},55%,35%)`; ctx.beginPath(); ctx.arc(x,y-16,18,Math.PI,0); ctx.fill();
-    // eyes
-    ctx.fillStyle = '#111827'; ctx.beginPath(); ctx.arc(x-6,y-12,2.5,0,Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc(x+6,y-12,2.5,0,Math.PI*2); ctx.fill();
-    // name plate
-    ctx.fillStyle='#0ea5e9'; ctx.fillRect(x-42,y+20,84,18);
-    ctx.fillStyle='#081726'; ctx.font='bold 12px system-ui'; ctx.textAlign='center'; ctx.fillText(target.name,x,y+33);
+    ctx.fillStyle = '#f5d0a5';
+    ctx.beginPath(); ctx.arc(x-18, y+8, 6, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(x+18, y+8, 6, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(x, y-10, 16, 0, Math.PI*2); ctx.fill();
+    const h = [...target.name].reduce((a,c)=>a+c.charCodeAt(0),0);
+    const hue = (h*7)%360;
+    ctx.fillStyle = `hsl(${hue},55%,35%)`;
+    ctx.beginPath(); ctx.arc(x, y-16, 18, Math.PI, 0); ctx.fill();
+    ctx.fillStyle = '#111827';
+    ctx.beginPath(); ctx.arc(x-6, y-12, 2.5, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(x+6, y-12, 2.5, 0, Math.PI*2); ctx.fill();
+    // wider nameplate for long names
+    ctx.fillStyle = '#0ea5e9';
+    ctx.fillRect(x-55, y+20, 110, 18);
+    ctx.fillStyle = '#081726'; ctx.font = 'bold 12px system-ui'; ctx.textAlign='center'; ctx.fillText(target.name, x, y+33);
   }
 
   function drawCharger(){
     const x = charger.x, y = charger.y;
-    ctx.strokeStyle = '#0e7490'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x-22,y+6);
-    ctx.bezierCurveTo(x-26,y+8,x-36,y+12,x-42,y+18); ctx.stroke();
-    ctx.fillStyle = '#0ea5e9'; ctx.fillRect(x-18,y-8,36,16);
-    ctx.fillStyle = '#e5e7eb'; ctx.fillRect(x+16,y-2,6,2); ctx.fillRect(x+16,y+2,6,2);
-    ctx.fillStyle = '#022c39'; ctx.fillRect(x-6,y-4,12,8);
+    ctx.strokeStyle = '#0e7490'; ctx.lineWidth = 2; ctx.beginPath();
+    ctx.moveTo(x-22,y+6); ctx.bezierCurveTo(x-26,y+8,x-36,y+12,x-42,y+18); ctx.stroke();
+    ctx.fillStyle = '#0ea5e9'; ctx.fillRect(x-18, y-8, 36, 16);
+    ctx.fillStyle = '#e5e7eb'; ctx.fillRect(x+16, y-2, 6, 2); ctx.fillRect(x+16, y+2, 6, 2);
+    ctx.fillStyle = '#022c39'; ctx.fillRect(x-6, y-4, 12, 8);
   }
 
   function update(){
-    // charge meter anim
+    // charge meter oscillation — slower for finer control
     if(charging){
-      if(increasing) charge += 0.015; else charge -= 0.015;
+      if(increasing) charge += 0.009; else charge -= 0.009;
       if(charge>=1){ charge=1; increasing=false; }
       if(charge<=0){ charge=0; increasing=true; }
       meter.style.width = Math.floor(charge*100)+'%';
-    } else { charge *= 0.95; meter.style.width = Math.floor(charge*100)+'%'; }
+    } else {
+      charge *= 0.95; meter.style.width = Math.floor(charge*100)+'%';
+    }
 
-    // motion
+    // motion along the bar
     if(charger.moving){
       charger.x += charger.vx;
-      charger.vx *= 0.985;
+      charger.vx *= 0.978; // a bit more friction so it doesn't sail forever
       if(Math.abs(charger.vx) < 0.22 || charger.x >= barRight){
         charger.moving = false;
         if(charger.x > barRight) charger.x = barRight;
         const dx = Math.abs(charger.x - target.x);
+
+        // Raised scoring tiers: reach $13,900 in ~10–15 rounds
         let pts = 0;
-        if(dx < 18) pts = 1800; else if(dx < 36) pts = 1200; else if(dx < 64) pts = 800; else if(dx < 100) pts = 500; else if(dx < 150) pts = 300; else pts = 120;
-        score += pts; scoreEl.textContent = 'Score: ' + score;
-        lastStop = {x: charger.x, y: charger.y, dx: dx, pts: pts};
-        showToast('+'+pts, pts>=800 ? '#22c55e' : pts>=300 ? '#eab308' : '#94a3b8');
+        if(dx < 18) pts = 2400;       // perfect
+        else if(dx < 36) pts = 1700;  // great
+        else if(dx < 64) pts = 1200;  // good
+        else if(dx < 100) pts = 800;  // okay
+        else if(dx < 150) pts = 500;  // meh
+        else pts = 220;               // consolation
+
+        score += pts;
+        scoreEl.textContent = 'Score: ' + score;
+        showToast('+'+pts, pts>=1200 ? '#22c55e' : pts>=500 ? '#eab308' : '#94a3b8');
+
         if(score >= 13900){
-          gameOver = true; launchConfetti(); setTimeout(()=>{ winOverlay.style.display='flex'; }, 250);
+          launchConfetti();
+          setTimeout(()=>showToast('You hit $13,900! 🎉', '#22c55e'), 200);
         } else {
-          setTimeout(resetRound, 750);
+          setTimeout(resetRound, 650);
         }
       }
     }
@@ -243,34 +273,17 @@
   function draw(){
     ctx.clearRect(0,0,WIDTH,HEIGHT);
     drawBackground();
-    // bar top highlight
-    ctx.fillStyle='rgba(255,255,255,.06)'; ctx.fillRect(0, barY-8, WIDTH, 8);
+    ctx.fillStyle = 'rgba(255,255,255,.06)';
+    ctx.fillRect(0, barY-8, WIDTH, 8); // bar highlight
     drawTeammate();
     drawEric();
     drawCharger();
-    // accuracy ring
-    if(lastStop){
-      const r = Math.min(140, Math.max(14, lastStop.dx));
-      let c = '#94a3b8'; if(lastStop.dx<64) c='#22c55e'; else if(lastStop.dx<120) c='#eab308';
-      ctx.save(); ctx.strokeStyle=c; ctx.lineWidth=3; ctx.beginPath(); ctx.arc(lastStop.x,lastStop.y,r,0,Math.PI*2); ctx.stroke();
-      ctx.font='bold 14px system-ui'; ctx.fillStyle=c; ctx.textAlign='center'; ctx.fillText('+'+lastStop.pts+' pts', lastStop.x, lastStop.y - r - 8);
-      ctx.restore();
-    }
-    if(gameOver){ drawConfetti(); }
-  }
-
-  function resetRound(){
-    round++; roundEl.textContent = 'Round: ' + round;
-    charger.x = barLeft+25; charger.y = barY-14; charger.vx = 0; charger.moving = false;
-    lastStop = null;
-    const minX = WIDTH*0.45, maxX = barRight-30;
-    target.x = Math.floor(rng(minX, maxX));
-    target.name = teammates[Math.floor(Math.random()*teammates.length)];
+    if(confetti.length) drawConfetti();
   }
 
   function loop(){ update(); draw(); requestAnimationFrame(loop); }
 
-  // boot
+  // Boot
   restart();
   loop();
 })();
