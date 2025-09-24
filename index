@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>C-Leg Charger Slide — OPC Mini-Game</title>
   <style>
-    html, body { height: 100%; margin: 0; background: #0f172a; color: #e2e8f0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; }
+    html, body { height: 100%; margin: 0; background: #0f172a; color: #e2e8f0; font-family: system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif; }
     .wrap { display: grid; place-items: center; height: 100%; gap: 12px; padding: 16px; }
     .panel { width: min(1100px, 96vw); background: #111827; border: 1px solid #1f2937; border-radius: 16px; box-shadow: 0 20px 40px rgba(0,0,0,.35); overflow: hidden; }
     .hud { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: #0b1223; border-bottom: 1px solid #1f2937; }
@@ -49,11 +49,12 @@
         <button class="btn" id="restartBtn" title="Restart">Restart</button>
       </div>
     </div>
+
     <div style="position: relative;">
       <canvas id="game" width="1100" height="520" aria-label="C-Leg Charger Slide game"></canvas>
       <div class="toast" id="toast">+0</div>
 
-      <!-- Win overlay with initials and office -->
+      <!-- Win overlay -->
       <div class="overlay" id="winOverlay">
         <div class="card">
           <h2 style="margin:0 0 8px 0;">You matched the OPC C-Leg price: $13,900</h2>
@@ -93,6 +94,7 @@
       </div>
 
     </div>
+
     <div class="footer">
       <div>Controls: Hold <strong>Space</strong> or press/hold on mobile to charge. Release to slide.</div>
       <div>Tip: stop just beside your teammate on the bar for max points. Watch the accuracy ring.</div>
@@ -103,7 +105,7 @@
 
 <script>
 (function(){
-  // Canvas and UI
+  // Canvas & UI
   const canvas = document.getElementById('game');
   const ctx = canvas.getContext('2d');
   const scoreEl = document.getElementById('scoreBadge');
@@ -129,19 +131,19 @@
   const WIDTH = canvas.width;
   const HEIGHT = canvas.height;
 
-  // World layout
+  // World
   const barY = HEIGHT * 0.65;
   const barLeft = 70;
   const barRight = WIDTH - 60;
 
   // Names
   const teammates = [
-    {name:'ADESUA'}, {name:'ANNE'}, {name:'BAILY'}, {name:'BRAD'}, {name:'BRANDON'}, {name:'BRIAN'},
-    {name:'CASEY'}, {name:'CHRIS'}, {name:'CYRUS'}, {name:'ELISA'}, {name:'FRANK'}, {name:'GREG'},
-    {name:'HENRY'}, {name:'JACOB'}, {name:'JASON'}, {name:'JILLIAN'}, {name:'KASEY'}, {name:'KEVIN'},
-    {name:'KYLE'}, {name:'LAUREL'}, {name:'MICHAEL'}, {name:'MITCHELL'}, {name:'PAUL'}, {name:'ROBYN'},
-    {name:'RUXANDRA'}, {name:'SANTRELL'}, {name:'SHANE'}, {name:'STEPHANIE'}, {name:'STEVEN'},
-    {name:'TARA'}, {name:'TYLER'}, {name:'WESLEY'}, {name:'ZACHARY'}
+    {name:'ADESUA'},{name:'ANNE'},{name:'BAILY'},{name:'BRAD'},{name:'BRANDON'},{name:'BRIAN'},
+    {name:'CASEY'},{name:'CHRIS'},{name:'CYRUS'},{name:'ELISA'},{name:'FRANK'},{name:'GREG'},
+    {name:'HENRY'},{name:'JACOB'},{name:'JASON'},{name:'JILLIAN'},{name:'KASEY'},{name:'KEVIN'},
+    {name:'KYLE'},{name:'LAUREL'},{name:'MICHAEL'},{name:'MITCHELL'},{name:'PAUL'},{name:'ROBYN'},
+    {name:'RUXANDRA'},{name:'SANTRELL'},{name:'SHANE'},{name:'STEPHANIE'},{name:'STEVEN'},
+    {name:'TARA'},{name:'TYLER'},{name:'WESLEY'},{name:'ZACHARY'}
   ];
 
   // Game state
@@ -150,12 +152,12 @@
   let target = {x: 750, name: 'KASEY'};
   let charger = {x: barLeft+25, y: barY-14, vx: 0, moving: false};
   let charging = false;
-  let charge = 0; // 0..1
+  let charge = 0;
   let increasing = true;
   let gameOver = false;
   let confetti = [];
   let startTime = performance.now();
-  let lastStop = null; // for accuracy ring
+  let lastStop = null;
 
   // Audio (simple WebAudio beeps)
   const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -184,21 +186,12 @@
     setTimeout(()=>beep(659,0.14,0.24), 240);
   }
 
-  muteBtn.addEventListener('click', ()=>{
-    soundOn = !soundOn;
-    muteBtn.textContent = 'Sound: ' + (soundOn ? 'On' : 'Off');
-  });
-
-  // Helpers
-  function rng(min, max){ return min + Math.random()*(max-min); }
+  muteBtn.addEventListener('click', ()=>{ soundOn = !soundOn; muteBtn.textContent = 'Sound: ' + (soundOn ? 'On' : 'Off'); });
 
   function resetRound(){
     round++;
     roundEl.textContent = 'Round: ' + round;
-    charger.x = barLeft+25;
-    charger.y = barY-14;
-    charger.vx = 0;
-    charger.moving = false;
+    charger.x = barLeft+25; charger.y = barY-14; charger.vx = 0; charger.moving = false;
     lastStop = null;
     const minX = WIDTH*0.45, maxX = barRight-30;
     target.x = Math.floor(minX + Math.random()*(maxX-minX));
@@ -217,13 +210,11 @@
     startTime = performance.now();
     winOverlay.style.display = 'none';
   }
-
   restartBtn.addEventListener('click', restart);
 
   function startCharge(){ if(gameOver) return; charging = true; beep(500, 0.05, 0.12); }
   function endCharge(){
-    if(gameOver) return;
-    if(!charging) return;
+    if(gameOver || !charging) return;
     charging = false;
     const minV = 6, maxV = 36;
     charger.vx = minV + charge*(maxV-minV);
@@ -231,15 +222,11 @@
     beep(620, 0.06, 0.12);
   }
 
-  // Keyboard and pointer
-  window.addEventListener('keydown', (e)=>{
-    if(e.code === 'Space'){ e.preventDefault(); startCharge(); }
-  });
-  window.addEventListener('keyup', (e)=>{
-    if(e.code === 'Space'){ e.preventDefault(); endCharge(); }
-  });
+  // Input
+  window.addEventListener('keydown', e => { if(e.code === 'Space'){ e.preventDefault(); startCharge(); }});
+  window.addEventListener('keyup',   e => { if(e.code === 'Space'){ e.preventDefault(); endCharge();   }});
   canvas.addEventListener('pointerdown', startCharge);
-  window.addEventListener('pointerup', endCharge);
+  window.addEventListener('pointerup',   endCharge);
 
   // Toast
   function showToast(text, color){
@@ -267,7 +254,6 @@
       });
     }
   }
-
   function drawConfetti(){
     confetti.forEach(p=>{
       p.vy += p.g; p.x += p.vx; p.y += p.vy; p.r += .1;
@@ -285,12 +271,9 @@
     ctx.fillStyle = grad; ctx.fillRect(0,0,WIDTH,wallBottom);
 
     // OPC sign
-    ctx.save();
-    ctx.translate(WIDTH-210, 60);
-    ctx.fillStyle = '#0ea5e9';
-    ctx.globalAlpha = .08; ctx.fillRect(-80,-20,160,40);
-    ctx.globalAlpha = 1;
-    ctx.font = 'bold 22px system-ui'; ctx.fillStyle = '#38bdf8'; ctx.fillText('OPC', -26, 7);
+    ctx.save(); ctx.translate(WIDTH-210, 60);
+    ctx.fillStyle = '#0ea5e9'; ctx.globalAlpha = .08; ctx.fillRect(-80,-20,160,40);
+    ctx.globalAlpha = 1; ctx.font = 'bold 22px system-ui'; ctx.fillStyle = '#38bdf8'; ctx.fillText('OPC', -26, 7);
     ctx.restore();
 
     // Counter
@@ -299,21 +282,17 @@
     ctx.fillStyle = wood; ctx.fillRect(0, wallBottom, WIDTH, HEIGHT - wallBottom);
 
     // Bar lip
-    ctx.fillStyle = '#e2c290';
-    ctx.fillRect(0, barY-2, WIDTH, 4);
+    ctx.fillStyle = '#e2c290'; ctx.fillRect(0, barY-2, WIDTH, 4);
   }
 
   function drawEric(){
     const x = barLeft-10, y = barY-36;
     ctx.fillStyle = '#1f2937';
-    ctx.fillRect(x, y+28, 18, 20);
-    ctx.fillRect(x+20, y+28, 18, 20);
-    ctx.fillStyle = '#2563eb';
-    ctx.fillRect(x-2, y, 42, 32);
+    ctx.fillRect(x, y+28, 18, 20); ctx.fillRect(x+20, y+28, 18, 20);
+    ctx.fillStyle = '#2563eb'; ctx.fillRect(x-2, y, 42, 32);
     ctx.beginPath(); ctx.arc(x+19, y-10, 10, 0, Math.PI*2); ctx.fillStyle = '#f1c27d'; ctx.fill();
     ctx.beginPath(); ctx.arc(x+19, y-13, 10, Math.PI, 0); ctx.fillStyle = '#2b2b2b'; ctx.fill();
-    ctx.fillStyle = '#f1c27d';
-    ctx.fillRect(x+34, y+4, 16, 8);
+    ctx.fillStyle = '#f1c27d'; ctx.fillRect(x+34, y+4, 16, 8);
     ctx.fillStyle = 'white'; ctx.font = 'bold 10px system-ui'; ctx.fillText('Eric', x+4, y+18);
   }
 
@@ -330,8 +309,7 @@
     ctx.fillStyle = '#111827';
     ctx.beginPath(); ctx.arc(x-6, y-12, 2.5, 0, Math.PI*2); ctx.fill();
     ctx.beginPath(); ctx.arc(x+6, y-12, 2.5, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = '#0ea5e9';
-    ctx.fillRect(x-42, y+20, 84, 18);
+    ctx.fillStyle = '#0ea5e9'; ctx.fillRect(x-42, y+20, 84, 18);
     ctx.fillStyle = '#081726'; ctx.font = 'bold 12px system-ui'; ctx.textAlign='center'; ctx.fillText(target.name, x, y+33);
   }
 
@@ -344,7 +322,7 @@
     ctx.fillStyle = '#022c39'; ctx.fillRect(x-6, y-4, 12, 8);
   }
 
-  // Accuracy ring at last stop
+  // Accuracy ring
   function drawAccuracy(){
     if(!lastStop) return;
     const {x, y, dx, pts} = lastStop;
@@ -361,6 +339,7 @@
   }
 
   function update(){
+    // charge meter
     if(charging){
       if(increasing) charge += 0.015; else charge -= 0.015;
       if(charge>=1){ charge=1; increasing=false; }
@@ -370,6 +349,7 @@
       charge *= 0.95; meter.style.width = Math.floor(charge*100)+'%';
     }
 
+    // motion
     if(charger.moving){
       charger.x += charger.vx;
       charger.vx *= 0.985;
@@ -379,16 +359,13 @@
         const dx = Math.abs(charger.x - target.x);
         let pts = 0;
         if(dx < 18) pts = 1800; else if(dx < 36) pts = 1200; else if(dx < 64) pts = 800; else if(dx < 100) pts = 500; else if(dx < 150) pts = 300; else pts = 120;
-        score += pts;
-        scoreEl.textContent = 'Score: ' + score;
+        score += pts; scoreEl.textContent = 'Score: ' + score;
         lastStop = {x: charger.x, y: charger.y, dx, pts};
         showToast('+'+pts, pts>=800 ? '#22c55e' : pts>=300 ? '#eab308' : '#94a3b8');
         beep( pts>=800 ? 740 : pts>=300 ? 620 : 520, 0.07, 0.18 );
 
         if(score >= 13900){
-          gameOver = true;
-          launchConfetti();
-          chordWin();
+          gameOver = true; launchConfetti(); chordWin();
           setTimeout(()=> showWinOverlay(), 250);
         } else {
           setTimeout(resetRound, 750);
@@ -400,22 +377,16 @@
   function draw(){
     ctx.clearRect(0,0,WIDTH,HEIGHT);
     drawBackground();
-    ctx.fillStyle = 'rgba(255,255,255,.06)';
-    ctx.fillRect(0, barY-8, WIDTH, 8);
-    drawTeammate();
-    drawEric();
-    drawCharger();
-    drawAccuracy();
+    ctx.fillStyle = 'rgba(255,255,255,.06)'; ctx.fillRect(0, barY-8, WIDTH, 8);
+    drawTeammate(); drawEric(); drawCharger(); drawAccuracy();
     if(gameOver){ drawConfetti(); }
   }
 
   function loop(){ update(); draw(); requestAnimationFrame(loop); }
 
-  // Leaderboard
+  // Leaderboard (local)
   const LB_KEY = 'opc_cleg_lb';
-  function loadLB(){
-    try { return JSON.parse(localStorage.getItem(LB_KEY) || '[]'); } catch { return []; }
-  }
+  function loadLB(){ try { return JSON.parse(localStorage.getItem(LB_KEY) || '[]'); } catch { return []; } }
   function saveLB(arr){ localStorage.setItem(LB_KEY, JSON.stringify(arr)); }
   function addScore(entry){
     const lb = loadLB();
@@ -424,9 +395,10 @@
     if(lb.length > 10) lb.length = 10;
     saveLB(lb);
   }
-  function fmtTime(ms){
-    const s = ms/1000;
-    return s.toFixed(2) + 's';
+  function fmtTime(ms){ const s = ms/1000; return s.toFixed(2) + 's'; }
+  function escapeHtml(s){
+    const map = {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;', "'":'&#39;'};
+    return (s||'').toString().replace(/[&<>"']/g, m => map[m]);
   }
   function renderLB(){
     const lb = loadLB();
@@ -441,41 +413,24 @@
       </tr>`
     )).join('') || `<tr><td colspan="6" class="muted">No scores yet.</td></tr>`;
   }
-  function escapeHtml(s){ return s.replace(/[&<>\"']/g, m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m])); }
-
   leaderBtn.addEventListener('click', ()=>{ renderLB(); lbOverlay.style.display = 'flex'; });
   lbClose.addEventListener('click', ()=> lbOverlay.style.display = 'none');
-  lbClear.addEventListener('click', ()=>{
-    if(confirm('Clear all local scores on this device?')){
-      saveLB([]);
-      renderLB();
-    }
-  });
+  lbClear.addEventListener('click', ()=>{ if(confirm('Clear all local scores on this device?')){ saveLB([]); renderLB(); }});
 
-  // Win overlay actions
   function showWinOverlay(){
     const ms = performance.now() - startTime;
     runStats.textContent = `Rounds: ${round}   •   Time: ${fmtTime(ms)}`;
-    initialsInput.value = '';
-    officeInput.value = '';
+    initialsInput.value = ''; officeInput.value = '';
     winOverlay.style.display = 'flex';
   }
   saveScoreBtn.addEventListener('click', ()=>{
     const ms = performance.now() - startTime;
-    addScore({
-      initials: (initialsInput.value || '').toUpperCase().slice(0,5),
-      office: officeInput.value || '',
-      rounds: round,
-      ms,
-      ts: Date.now()
-    });
-    winOverlay.style.display = 'none';
-    renderLB();
-    lbOverlay.style.display = 'flex';
+    addScore({ initials: (initialsInput.value||'').toUpperCase().slice(0,5), office: officeInput.value||'', rounds: round, ms, ts: Date.now() });
+    winOverlay.style.display = 'none'; renderLB(); lbOverlay.style.display = 'flex';
   });
   playAgainBtn.addEventListener('click', ()=>{ winOverlay.style.display = 'none'; restart(); });
 
-  // Init
+  // Go
   restart();
   loop();
 })();
